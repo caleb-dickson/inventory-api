@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const inventorySchema = mongoose.Schema({
   parentLocation: {
@@ -21,5 +21,17 @@ const inventorySchema = mongoose.Schema({
     },
   ],
 });
+
+// inventorySchema.methods.updateInventory = async function (inventoryUpdateData) {
+//   console.log("updateInventory |||");
+//   this.parentLocation = inventoryUpdateData.parentLocation;
+//   this.dateStart = inventoryUpdateData.dateStart;
+//   this.dateEnd = inventoryUpdateData.dateEnd;
+//   this.department = inventoryUpdateData.department;
+//   this.isFinal = inventoryUpdateData.isFinal;
+//   this.inventory = inventoryUpdateData.dInventory;
+
+//   return this.save();
+// };
 
 export const Inventory = mongoose.model("Inventory", inventorySchema);

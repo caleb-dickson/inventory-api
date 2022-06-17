@@ -32,7 +32,7 @@ router.post("/new-product", checkAuth, LocationController.createProduct);
 router.post("/new-inventory", checkAuth, LocationController.createInventory);
 
 // Update existing inventory
-// ================================ //
+router.put("/update-inventory", checkAuth, LocationController.updateInventory);
 
 // Fetch all inventories of the parentOrg
 router.get(

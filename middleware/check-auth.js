@@ -10,7 +10,7 @@ export const checkAuth = (req, res, next) => {
       userRole: decodedToken.userRole
     };
     console.log(req.userData);
-    console.log('||| checkAuth here ^^^ |||')
+    console.log('||| ^^^ checkAuth here ^^^ |||')
     next();
   } catch (error) {
     res.status(401).json({ message: "Not authenticated! Log in." });

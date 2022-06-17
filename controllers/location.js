@@ -2,46 +2,10 @@ import { Location } from "../models/location.js";
 import { Inventory } from "../models/inventory.js";
 import { Product } from "../models/product.js";
 
-export const fetchLocationInventories = async (req, res, next) => {
-  console.log(req.params);
-  console.log("||| ^^^ req.params ^^^ |||");
-
-  const locationRetrieved = await Location.findById(
-    req.params.locationId
-  ).populate({
-    path: "inventoryData.inventory",
-    model: "Inventory",
-  });
-
-  const fetchedInventories = await locationRetrieved.getInventories();
-  console.log(fetchedInventories);
-  console.log("||| ^^^ fetchedInventories populated? ^^^ |||");
-
-
-  if (fetchedInventories && fetchedInventories.length > 0) {
-    res.status(200).json({
-      fetchedInventories: fetchedInventories,
-      message: "Found inventories for this location!",
-    });
-  } else {
-    res.status(404).json({
-      message: "This location has no inventories yet.",
-    });
-  }
-
-  try {
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: error._message,
-    });
-  }
-};
-
 export const fetchUserLocations = async (req, res, next) => {
   // IDEA FOR FUTURE DEVELOPMENT??: LOOK FOR USER IN BOTH LISTS
   // IF USER IS FOUND IN A MANAGER LIST AND THEIR ROLE ISN'T
-  // AS MANAGER, UPDATE USER ROLE TO MANAGER; "2"
+  // AS MANAGER, UPDATE USER ROLE TO MANAGER: "2"
   try {
     let userLocations;
 
@@ -126,6 +90,57 @@ export const fetchUserLocations = async (req, res, next) => {
   }
 };
 
+export const createProduct = async (req, res, next) => {
+  try {
+    const product = new Product({
+      parentOrg: req.body.product.parentOrg,
+      isActive: req.body.product.isActive,
+      department: req.body.product.department,
+      category: req.body.product.category,
+      name: req.body.product.name,
+      unitSize: req.body.product.unitSize,
+      unitMeasure: req.body.product.unitMeasure,
+      unitsPerPack: req.body.product.unitsPerPack,
+      packsPerCase: req.body.product.packsPerCase,
+      casePrice: req.body.product.casePrice,
+      par: req.body.product.par,
+    });
+
+    const newProduct = await product.save();
+    console.log(newProduct);
+    console.log("||| ^^^ new saved product here ^^^ |||");
+
+    const locationToUpdate = await Location.findById(req.body.locationId);
+
+    await locationToUpdate.addProductToList(newProduct);
+
+    const populatedLocation = await Location.findById(req.body.locationId)
+      .populate({
+        path: "productList.product",
+        model: "Product",
+      })
+      .populate({
+        path: "inventoryData.inventory",
+        model: "Inventory",
+      });
+
+    res.status(201).json({
+      message:
+        "||| " +
+        newProduct.name +
+        " successfully created and added to " +
+        populatedLocation.locationName +
+        " |||",
+      updatedActiveLocation: populatedLocation,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: error._message,
+    });
+  }
+};
+
 // UNFINISHED - WORKING
 export const createInventory = async (req, res, next) => {
   console.log(req.body);
@@ -186,49 +201,65 @@ export const createInventory = async (req, res, next) => {
   }
 };
 
-export const createProduct = async (req, res, next) => {
+export const updateInventory = async (req, res, next) => {
+  console.log(req.body);
+  console.log("||| ^^^ req.body ^^^ |||");
+
   try {
-    const product = new Product({
-      parentOrg: req.body.product.parentOrg,
-      isActive: req.body.product.isActive,
-      department: req.body.product.department,
-      category: req.body.product.category,
-      name: req.body.product.name,
-      unitSize: req.body.product.unitSize,
-      unitMeasure: req.body.product.unitMeasure,
-      unitsPerPack: req.body.product.unitsPerPack,
-      packsPerCase: req.body.product.packsPerCase,
-      casePrice: req.body.product.casePrice,
-      par: req.body.product.par,
+    const updatedInventory = await Inventory.findByIdAndUpdate(
+      req.body.inventory._id,
+      {
+        dateStart: req.body.inventory.dateStart,
+        dateEnd: req.body.inventory.dateEnd,
+        isFinal: req.body.inventory.isFinal,
+        inventory: req.body.inventory.dInventory,
+      },
+      { new: true }
+    ).populate({
+      path: "inventory",
+      model: "Product",
     });
 
-    const newProduct = await product.save();
-    console.log(newProduct);
-    console.log("||| ^^^ new saved product here ^^^ |||");
-
-    const locationToUpdate = await Location.findById(req.body.locationId);
-
-    await locationToUpdate.addProductToList(newProduct);
-
-    const populatedLocation = await Location.findById(req.body.locationId)
-      .populate({
-        path: "productList.product",
-        model: "Product",
-      })
-      .populate({
-        path: "inventoryData.inventory",
-        model: "Inventory",
-      });
-
-    res.status(201).json({
-      message:
-        "||| " +
-        newProduct.name +
-        " successfully created and added to " +
-        populatedLocation.locationName +
-        " |||",
-      updatedActiveLocation: populatedLocation,
+    if (updatedInventory) {
+      res.status(200).json({ updatedInventory: updatedInventory });
+    } else {
+      res.status(404).json({ message: "Inventory not found." });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: error._message,
     });
+  }
+};
+
+export const fetchLocationInventories = async (req, res, next) => {
+  console.log(req.params);
+  console.log("||| ^^^ req.params ^^^ |||");
+
+  const locationRetrieved = await Location.findById(
+    req.params.locationId
+  ).populate({
+    path: "inventoryData.inventory",
+    model: "Inventory",
+  });
+
+  const fetchedInventories = await locationRetrieved.getInventories();
+  console.log(fetchedInventories);
+  console.log("||| ^^^ fetchedInventories populated ^^^ |||");
+
+  if (fetchedInventories && fetchedInventories.length > 0) {
+    res.status(200).json({
+      fetchedInventories: fetchedInventories,
+      message: "Found inventories for this location!",
+    });
+  } else {
+    res.status(404).json({
+      message: "This location has no inventories yet.",
+    });
+  }
+
+  try {
   } catch (error) {
     console.log(error);
     res.status(500).json({
