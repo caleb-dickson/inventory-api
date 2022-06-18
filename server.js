@@ -1,8 +1,5 @@
 import app from "./app.js";
-import Debug from "debug";
 import { createServer } from "http";
-
-const debug = Debug('inv-api:server')
 
 const normalizePort = (val) => {
   var port = parseInt(val, 10);
@@ -42,7 +39,6 @@ const onError = (error) => {
 const onListening = () => {
   const addr = server.address();
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + port;
-  debug("Listening on " + bind);
   console.log("Listening on " + bind);
 };
 

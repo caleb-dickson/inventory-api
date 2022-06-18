@@ -156,6 +156,7 @@ export const createInventory = async (req, res, next) => {
       department: req.body.inventory.department,
       isFinal: req.body.inventory.isFinal,
       inventory: req.body.inventory.inventory,
+      value: req.body.inventory.value
     });
     const newInventory = await inventory.save();
     console.log(newInventory);

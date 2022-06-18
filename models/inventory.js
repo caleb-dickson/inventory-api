@@ -8,7 +8,7 @@ const inventorySchema = mongoose.Schema({
   },
   dateStart: { type: String, required: true },
   dateEnd: { type: String, required: true },
-  department: { type: String, required: true }, // BOH OR FOH or ...
+  department: { type: String, required: true },
   isFinal: { type: Boolean, required: true },
   inventory: [
     {
@@ -20,18 +20,7 @@ const inventorySchema = mongoose.Schema({
       quantity: { type: Number, required: false, default: 0 },
     },
   ],
+  value: { type: Number, required: true },
 });
-
-// inventorySchema.methods.updateInventory = async function (inventoryUpdateData) {
-//   console.log("updateInventory |||");
-//   this.parentLocation = inventoryUpdateData.parentLocation;
-//   this.dateStart = inventoryUpdateData.dateStart;
-//   this.dateEnd = inventoryUpdateData.dateEnd;
-//   this.department = inventoryUpdateData.department;
-//   this.isFinal = inventoryUpdateData.isFinal;
-//   this.inventory = inventoryUpdateData.dInventory;
-
-//   return this.save();
-// };
 
 export const Inventory = mongoose.model("Inventory", inventorySchema);
