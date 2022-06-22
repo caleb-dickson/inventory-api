@@ -26,6 +26,8 @@ mongoose
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: false }));
 app.use("/images", express.static(path.join("images")));
+// app.use("/images/users", express.static(path.join("images")));
+// NEED ADDITIONAL PATHS FOR OTHER IMAGES ^^^
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -37,6 +39,8 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Methods",
     "GET, POST, PATCH, PUT, DELETE, OPTIONS"
   );
+  // console.log(req);
+  // console.log('||| ^^^ req ^^^ |||')
   next();
 });
 

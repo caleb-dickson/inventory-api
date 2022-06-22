@@ -79,7 +79,8 @@ export const fetchUserLocations = async (req, res, next) => {
       // RESPOND WITH AN ERROR MESSAGE
       res.status(404).json({
         message:
-          "No authorized locations found. Ask the account owner for access.",
+          `No authorized locations found. 
+          Ask your manager or business owner for access.`,
       });
     }
   } catch (error) {

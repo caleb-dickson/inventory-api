@@ -1,16 +1,12 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-import { User } from '../models/user.js';
+import { User } from "../models/user.js";
 
-// const nodemailer = require("nodemailer");
-// const sendGridTransport = require("nodemailer-sendgrid-transport");
-// const sendGridMail = require("@sendgrid/mail");
-import sendGridMail from '@sendgrid/mail';
+import sendGridMail from "@sendgrid/mail";
 
 // ON DEPLOYMENT, SWITCH TO "process.env.SENDGRID_API_KEY"
 sendGridMail.setApiKey(process.env.SENDGRID_API_KEY);
-
 
 // CREATE NEW USER
 export const signup = async (req, res, next) => {
@@ -141,6 +137,53 @@ export const login = async (req, res, next) => {
   }
 };
 // USER LOGIN /// END
+
+export const updateUser = async (req, res, next) => {
+  console.log(req.file);
+  console.log("||| ^^^ req.file ^^^ |||");
+  console.log(req.body);
+  console.log("||| ^^^ req.body ^^^ |||");
+  let imagePath;
+  if (req.file) {
+    const url = req.protocol + "://" + req.get("host");
+    imagePath = url + "/images/users/" + req.file.filename;
+    console.log(imagePath);
+  }
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.body.userId,
+      {
+        // email: req.body.email,
+        // "userProfile.role": req.body.role,
+        // "userProfile.department": req.body.department,
+        "userProfile.firstName": req.body.firstName,
+        "userProfile.lastName": req.body.lastName,
+        "userProfile.phoneNumber": req.body.phoneNumber,
+        "userProfile.themePref": req.body.themePref,
+        "userProfile.userPhoto": imagePath,
+      },
+      { new: true }
+    );
+    console.log(updatedUser);
+    console.log("||| ^^^ updatedUser ^^^ |||");
+
+    if (updatedUser) {
+      res.status(200).json({ updatedUser: updatedUser });
+    } else {
+      res
+        .status(500)
+        .json({ message: "An unknown server error has occurred." });
+    }
+  } catch (error) {
+    console.log(error);
+    if (!res.headersSent) {
+      return res.status(500).json({
+        message: error,
+      });
+    }
+  }
+};
 
 // ||| Unfinished Unfinished Unfinished Unfinished Unfinished |||
 // FETCH ALL LOCATIONS WHERE USER IS AUTHORIZED

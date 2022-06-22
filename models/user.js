@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = mongoose.Schema({
   email: { type: String, required: true },
@@ -9,12 +9,16 @@ const userSchema = mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     phoneNumber: { type: String, required: true },
-    themePref: { type: String, required: true, default: "theme-dark" }
-  }
+    themePref: { type: String, required: true, default: "theme-dark" },
+    userPhoto: {
+      type: String,
+      required: true,
+      default: "http://localhost:3000/images/users/user_photo_default.png",
+    },
+  },
 });
 
 userSchema.methods.ownerAddBusiness = function (newBusiness) {
-
   this.userProfile.business = newBusiness._id;
 
   return this.save();

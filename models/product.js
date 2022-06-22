@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const productSchema = mongoose.Schema({
   parentOrg: {
@@ -19,6 +19,11 @@ const productSchema = mongoose.Schema({
   packsPerCase: { type: Number, required: true },
   casePrice: { type: Number, required: true },
   par: { type: Number, required: true },
+  productPhoto: {
+    type: String,
+    required: true,
+    default: "http://localhost:3000/images/products/user_photo_default.png",
+  },
 });
 
 export const Product = mongoose.model("Product", productSchema);

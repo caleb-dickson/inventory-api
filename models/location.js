@@ -46,6 +46,11 @@ const locationSchema = mongoose.Schema({
       },
     },
   ],
+  locationPhoto: {
+    type: String,
+    required: true,
+    default: "http://localhost:3000/images/locations/user_photo_default.png",
+  },
 });
 
 // USED TO UPDATE SIMPLE LOCATION DATA AND RETURN THE LATEST FROM DB
