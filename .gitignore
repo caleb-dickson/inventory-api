@@ -35,7 +35,7 @@ yarn-error.log
 testem.log
 /typings
 nodemon.json
-/images/*/**
+images/*/**
 
 # System files
 .DS_Store
