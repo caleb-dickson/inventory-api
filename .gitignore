@@ -38,8 +38,8 @@ nodemon.json
 *.png
 *.jpg
 *.jpeg
+!/images/**/*.md
 
-!images/*
 
 # System files
 .DS_Store
