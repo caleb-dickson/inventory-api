@@ -39,6 +39,8 @@ nodemon.json
 *.jpg
 *.jpeg
 
+!images/*
+
 # System files
 .DS_Store
 Thumbs.db
