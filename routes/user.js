@@ -1,7 +1,7 @@
 import express from "express";
 
 import { checkAuth } from "../middleware/check-auth.js";
-import extractImage from "../middleware/file.js";
+import saveUserPhoto from "../middleware/saveUserPhoto.js";
 
 import * as UserController from "../controllers/user.js";
 
@@ -18,6 +18,6 @@ router.get(
   UserController.getUserLocations
 );
 
-router.put("/update-user", extractImage, UserController.updateUser);
+router.put("/update-user", checkAuth, saveUserPhoto, UserController.updateUser);
 
 export default router;

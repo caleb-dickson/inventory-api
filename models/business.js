@@ -10,7 +10,7 @@ const businessSchema = mongoose.Schema({
   businessPhoto: {
     type: String,
     required: true,
-    default: "http://localhost:3000/images/business/user_photo_default.png",
+    default: "http://localhost:3000/images/business/business_photo_default.png",
   },
   locations: [
     {
@@ -25,7 +25,6 @@ const businessSchema = mongoose.Schema({
 
 businessSchema.methods.addLocationToBusiness = async function (newLocationId) {
   this.locations.push({ location: newLocationId });
-
   return this.save();
 };
 

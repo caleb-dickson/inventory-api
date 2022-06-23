@@ -6,11 +6,23 @@ import { User } from "../models/user.js";
 
 // CREATE NEW BUSINESS
 export const createBusiness = async (req, res, next) => {
+  console.log(req.file);
+  console.log("||| ^^^ req.file ^^^ |||");
+  console.log(req.body);
+  console.log("||| ^^^ req.body ^^^ |||");
+  let imagePath;
+  if (req.file) {
+    const url = req.protocol + "://" + req.get("host");
+    imagePath = url + "/images/business/" + req.file.filename;
+    console.log(imagePath);
+  }
+
   try {
     // DEFINE THE NEW BUSINESS
     const business = new Business({
       businessName: req.body.businessName,
       ownerId: req.body.ownerId,
+      businessPhoto: imagePath,
       locations: [],
     });
 
@@ -114,10 +126,26 @@ export const getOwnersBusiness = async (req, res, next) => {
 
 // EDIT/UPDATE BUSINESS (businessName)
 export const updateBusiness = async (req, res, next) => {
+  console.log(req.file);
+  console.log("||| ^^^ req.file ^^^ |||");
+  console.log(req.body);
+  console.log("||| ^^^ req.body ^^^ |||");
+  let imagePath;
+  if (req.file) {
+    const url = req.protocol + "://" + req.get("host");
+    imagePath = url + "/images/business/" + req.file.filename;
+    console.log(imagePath);
+  }
+
   try {
-    let business = await Business.findByIdAndUpdate(req.body.businessId, {
-      businessName: req.body.updatedBusinessName,
-    });
+    let business = await Business.findByIdAndUpdate(
+      req.body.businessId,
+      {
+        businessName: req.body.businessName,
+        businessPhoto: imagePath,
+      },
+      { new: true }
+    );
 
     business = await Business.findById(req.body.businessId).populate({
       path: "locations.location",
@@ -129,6 +157,8 @@ export const updateBusiness = async (req, res, next) => {
 
     res.status(200).json({
       message: "Business name updated successfully",
+      updatedBusiness: business,
+      updatedBusinessId: business._id
     });
   } catch (error) {
     // CATCH AND RETURN UNEXPECTED ERRORS

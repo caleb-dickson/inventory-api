@@ -4,6 +4,7 @@ const MIME_TYPE_MAP = {
   "image/png": "png",
   "image/jpeg": "jpg",
   "image/jpg": "jpg",
+  "image/webp": "webp"
 };
 
 const storage = multer.diskStorage({
@@ -13,7 +14,7 @@ const storage = multer.diskStorage({
     if (isValid) {
       error = null;
     }
-    cb(error, "images/users");
+    cb(error, "images/business");
   },
   filename: (req, file, cb) => {
     const name = file.originalname.toLowerCase().split(" ").join("_");
@@ -22,4 +23,4 @@ const storage = multer.diskStorage({
   },
 });
 
-export default multer({ storage: storage }).single("userPhoto");
+export default multer({ storage: storage }).single("businessPhoto");
