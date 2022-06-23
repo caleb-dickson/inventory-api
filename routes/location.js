@@ -1,6 +1,7 @@
 import express from "express";
 
 import { checkAuth } from "../middleware/check-auth.js";
+import { checkMgr } from "../middleware/check-role-mgr.js";
 
 import * as LocationController from "../controllers/location.js";
 
@@ -17,6 +18,7 @@ router.get(
 // PRODUCTS
 // Create a new product for business
 router.post("/new-product", checkAuth, LocationController.createProduct);
+
 // Update product businesswide (parentOrg is the business)
 // ================================ //
 
@@ -32,7 +34,7 @@ router.post("/new-product", checkAuth, LocationController.createProduct);
 router.post("/new-inventory", checkAuth, LocationController.createInventory);
 
 // Update existing inventory
-router.put("/update-inventory", checkAuth, LocationController.updateInventory);
+router.put("/update-inventory", checkMgr, LocationController.updateInventory);
 
 // Fetch all inventories of the parentOrg
 router.get(

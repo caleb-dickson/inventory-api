@@ -38,7 +38,6 @@ nodemon.json
 *.png
 *.jpg
 *.jpeg
-!/images/**/*.md
 
 
 # System files

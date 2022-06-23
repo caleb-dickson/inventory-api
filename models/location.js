@@ -49,7 +49,7 @@ const locationSchema = mongoose.Schema({
   locationPhoto: {
     type: String,
     required: true,
-    default: "http://localhost:3000/images/locations/user_photo_default.png",
+    default: "http://localhost:3000/images/locations/location_photo_default.png",
   },
 });
 

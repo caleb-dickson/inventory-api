@@ -3,9 +3,7 @@ import { Inventory } from "../models/inventory.js";
 import { Product } from "../models/product.js";
 
 export const fetchUserLocations = async (req, res, next) => {
-  // IDEA FOR FUTURE DEVELOPMENT??: LOOK FOR USER IN BOTH LISTS
-  // IF USER IS FOUND IN A MANAGER LIST AND THEIR ROLE ISN'T
-  // AS MANAGER, UPDATE USER ROLE TO MANAGER: "2"
+
   try {
     let userLocations;
 
@@ -35,8 +33,6 @@ export const fetchUserLocations = async (req, res, next) => {
           path: "parentBusiness",
           model: "Business",
         });
-      console.log(userLocations);
-      console.log("||| ^^^ found locations here ^^^ |||");
 
       // IF USER IS NOT A MANAGER (JUNIOR STAFF)
     } else if (+req.params.userRole === 1) {
@@ -64,8 +60,6 @@ export const fetchUserLocations = async (req, res, next) => {
           path: "parentBusiness",
           model: "Business",
         });
-      console.log(userLocations);
-      console.log("||| ^^^ found locations here ^^^ |||");
     }
 
     // IF USER WAS FOUND IN ANY LOCATION'S STAFF LIST
@@ -84,7 +78,6 @@ export const fetchUserLocations = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });
@@ -108,8 +101,6 @@ export const createProduct = async (req, res, next) => {
     });
 
     const newProduct = await product.save();
-    console.log(newProduct);
-    console.log("||| ^^^ new saved product here ^^^ |||");
 
     const locationToUpdate = await Location.findById(req.body.locationId);
 
@@ -135,7 +126,6 @@ export const createProduct = async (req, res, next) => {
       updatedActiveLocation: populatedLocation,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });
@@ -144,8 +134,6 @@ export const createProduct = async (req, res, next) => {
 
 // UNFINISHED - WORKING
 export const createInventory = async (req, res, next) => {
-  console.log(req.body);
-  console.log("||| ^^^ req.body ^^^ |||");
 
   try {
     const parentLocation = await Location.findById(req.body.location._id);
@@ -160,8 +148,6 @@ export const createInventory = async (req, res, next) => {
       value: req.body.inventory.value
     });
     const newInventory = await inventory.save();
-    console.log(newInventory);
-    console.log("||| ^^^ saved inventory ^^^ |||");
 
     const modifiedLocation = await parentLocation.addNewInventory(newInventory);
 
@@ -196,7 +182,6 @@ export const createInventory = async (req, res, next) => {
       updatedLocation: updatedLocation,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });
@@ -204,8 +189,6 @@ export const createInventory = async (req, res, next) => {
 };
 
 export const updateInventory = async (req, res, next) => {
-  console.log(req.body);
-  console.log("||| ^^^ req.body ^^^ |||");
 
   try {
     const updatedInventory = await Inventory.findByIdAndUpdate(
@@ -228,7 +211,6 @@ export const updateInventory = async (req, res, next) => {
       res.status(404).json({ message: "Inventory not found." });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });
@@ -236,8 +218,6 @@ export const updateInventory = async (req, res, next) => {
 };
 
 export const fetchLocationInventories = async (req, res, next) => {
-  console.log(req.params);
-  console.log("||| ^^^ req.params ^^^ |||");
 
   const locationRetrieved = await Location.findById(
     req.params.locationId
@@ -247,8 +227,6 @@ export const fetchLocationInventories = async (req, res, next) => {
   });
 
   const fetchedInventories = await locationRetrieved.getInventories();
-  console.log(fetchedInventories);
-  console.log("||| ^^^ fetchedInventories populated ^^^ |||");
 
   if (fetchedInventories && fetchedInventories.length > 0) {
     res.status(200).json({
@@ -263,7 +241,6 @@ export const fetchLocationInventories = async (req, res, next) => {
 
   try {
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });

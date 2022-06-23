@@ -1,1 +1,0 @@
-# Placeholder to demonstrate the stored images directories.

@@ -18,6 +18,7 @@ router.get(
   UserController.getUserLocations
 );
 
+// Update user doc
 router.put("/update-user", checkAuth, saveUserPhoto, UserController.updateUser);
 
 export default router;

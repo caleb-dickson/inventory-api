@@ -6,15 +6,10 @@ import { User } from "../models/user.js";
 
 // CREATE NEW BUSINESS
 export const createBusiness = async (req, res, next) => {
-  console.log(req.file);
-  console.log("||| ^^^ req.file ^^^ |||");
-  console.log(req.body);
-  console.log("||| ^^^ req.body ^^^ |||");
   let imagePath;
   if (req.file) {
     const url = req.protocol + "://" + req.get("host");
     imagePath = url + "/images/business/" + req.file.filename;
-    console.log(imagePath);
   }
 
   try {
@@ -33,8 +28,7 @@ export const createBusiness = async (req, res, next) => {
       const checkOnlyOwnersBusiness = await Business.findOne({
         ownerId: req.body.ownerId,
       });
-      console.log("||| checking business is only owners business |||");
-      console.log(checkOnlyOwnersBusiness);
+
       if (checkOnlyOwnersBusiness) {
         // IF THE USER ALREADY HAS A BUSINESS, RETURN ERROR 422
         res.status(422).json({
@@ -43,8 +37,6 @@ export const createBusiness = async (req, res, next) => {
         });
       }
     } catch (error) {
-      // CATCH AND RETURN UNEXPECTED ERRORS
-      console.log(error);
       if (!res.headersSent) {
         res.status(500).json({
           message: error,
@@ -54,18 +46,12 @@ export const createBusiness = async (req, res, next) => {
 
     // IF NO EXISTING BUSINESS WAS FOUND, SAVE THE DEFINED BUSINESS
     const newBusiness = await business.save();
-    console.log(newBusiness);
-    console.log("||| ^^^ newBusiness ^^^ |||");
 
     // PULL THE USER (OWNER) DOC FROM DB
     const ownerUser = await User.findById(req.body.ownerId);
-    console.log(ownerUser);
-    console.log("||| ^^^ ownerUser ^^^ |||");
 
     // ADD THE NEW BUSINESS TO THE USERPROFILE
     const updatedOwner = await ownerUser.ownerAddBusiness(newBusiness);
-    console.log(updatedOwner);
-    console.log("||| ^^^ updatedOwner ^^^ |||");
 
     // SEND BACK THE DATA TO THE CLIENT
     res.status(201).json({
@@ -78,8 +64,6 @@ export const createBusiness = async (req, res, next) => {
       updatedUserId: updatedOwner._id,
     });
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
-    console.log(error);
     if (!res.headersSent) {
       res.status(500).json({
         message: error._message,
@@ -101,8 +85,6 @@ export const getOwnersBusiness = async (req, res, next) => {
     });
 
     if (foundBusiness && foundBusiness._id) {
-      console.log("||| found and populated? |||");
-      console.log(foundBusiness.locations);
       res.status(200).json({
         message: "Owner's business found.",
         business: foundBusiness,
@@ -115,8 +97,6 @@ export const getOwnersBusiness = async (req, res, next) => {
       });
     }
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });
@@ -126,15 +106,10 @@ export const getOwnersBusiness = async (req, res, next) => {
 
 // EDIT/UPDATE BUSINESS (businessName)
 export const updateBusiness = async (req, res, next) => {
-  console.log(req.file);
-  console.log("||| ^^^ req.file ^^^ |||");
-  console.log(req.body);
-  console.log("||| ^^^ req.body ^^^ |||");
   let imagePath;
   if (req.file) {
     const url = req.protocol + "://" + req.get("host");
     imagePath = url + "/images/business/" + req.file.filename;
-    console.log(imagePath);
   }
 
   try {
@@ -152,8 +127,6 @@ export const updateBusiness = async (req, res, next) => {
       model: "Location",
     });
 
-    console.log("||| updated, populated? business |||");
-    console.log(business);
 
     res.status(200).json({
       message: "Business name updated successfully",
@@ -161,8 +134,6 @@ export const updateBusiness = async (req, res, next) => {
       updatedBusinessId: business._id
     });
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
-    console.log(error);
     if (!res.headersSent) {
       res.status(500).json({
         message: error,
@@ -174,6 +145,7 @@ export const updateBusiness = async (req, res, next) => {
 
 // CREATE NEW LOCATION
 export const createLocation = async (req, res, next) => {
+
   try {
     // DEFINE THE NEW LOCATION
     const newLocation = new Location({
@@ -184,12 +156,9 @@ export const createLocation = async (req, res, next) => {
 
     // SAVE NEW LOCATION TO THE DB
     const savedLocation = await newLocation.save();
-    console.log(savedLocation);
 
     // RETRIEVE THE PARENT BUSINESS DOC
     const parentBusiness = await Business.findById(req.body.parentBusiness);
-    console.log("||| Parent Business findById |||");
-    console.log(parentBusiness);
 
     // PULL ALL LOCATIONS INTO THE PARENT BUSINESS IN DB
     await parentBusiness.addLocationToBusiness(savedLocation._id);
@@ -211,8 +180,6 @@ export const createLocation = async (req, res, next) => {
       },
     });
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });
@@ -222,28 +189,21 @@ export const createLocation = async (req, res, next) => {
 
 // EDIT/UPDATE LOCATION (locationName)
 export const updateLocation = async (req, res, next) => {
-  console.log("||| req.body |||");
-  console.log(req.body);
+
   try {
     const foundLocation = await Location.findById(
       req.body.locationUpdateData._id
     );
-    console.log("||| found location |||");
-    console.log(foundLocation);
 
     const updatedLocation = await foundLocation.updateLocation(
       req.body.locationUpdateData
     );
 
-    console.log("||| updated? location |||");
-    console.log(updatedLocation);
 
     res.status(200).json({
       message: "Location name updated successfully",
     });
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
-    console.log(error);
     if (!res.headersSent) {
       res.status(500).json({
         message: error._message,
@@ -254,16 +214,14 @@ export const updateLocation = async (req, res, next) => {
 // EDIT/UPDATE LOCATION (locationName) /// END
 
 export const addUsersToLocation = async (req, res, next) => {
+
   try {
-    console.log(req.body);
-    console.log("||| ^^^ req.body ^^^ |||");
     const locationForAdd = await Location.findById(req.body.location);
 
     // FOR managers
     if (req.body.role === "manager") {
       const updatedLocation = await locationForAdd.addManagers(req.body.emails);
-      console.log(updatedLocation);
-      console.log("||| ^^^ updated location here ^^^ |||");
+
       if (updatedLocation === "Not found.") {
         res.status(404).json({
           message:
@@ -279,8 +237,7 @@ export const addUsersToLocation = async (req, res, next) => {
       // FOR staff
     } else if (req.body.role === "staff") {
       const updatedLocation = await locationForAdd.addStaff(req.body.emails);
-      console.log("||| ^^^ updated location here ^^^ |||");
-      console.log(updatedLocation);
+
       if (updatedLocation === "Not found.") {
         res.status(404).json({
           message:
@@ -294,8 +251,6 @@ export const addUsersToLocation = async (req, res, next) => {
       }
     }
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
-    console.log(error);
     if (!res.headersSent) {
       res.status(500).json({
         message: error,
@@ -305,9 +260,8 @@ export const addUsersToLocation = async (req, res, next) => {
 };
 
 export const getBusinessLocations = async (req, res, next) => {
+
   try {
-    console.log(req.params.businessId);
-    console.log("||| ^^^ req.params.businessId ^^^ |||");
 
     const bizLocations = await Location.find({
       parentBusiness: req.params.businessId,
@@ -328,8 +282,6 @@ export const getBusinessLocations = async (req, res, next) => {
         path: "inventoryData.inventory",
         model: "Inventory",
       });
-    console.log(bizLocations);
-    console.log("||| ^^^ found locations here ^^^ |||");
 
     if (bizLocations) {
       res.status(200).json({ fetchedLocations: bizLocations });
@@ -338,34 +290,8 @@ export const getBusinessLocations = async (req, res, next) => {
       res.status(404).json({ message: "No locations were found" });
     }
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });
   }
 };
-
-// exports.getProducts = async (req, res, next) => {
-//   try {
-//     const businessId = req.params.businessId;
-//   } catch (error) {
-//     // CATCH AND RETURN UNEXPECTED ERRORS
-//     console.log(error);
-//     res.status(500).json({
-//       message: error._message,
-//     });
-//   }
-// };
-
-// exports.getInventories = async (req, res, next) => {
-//   try {
-//     const locationId = req.params.locationId;
-//   } catch (error) {
-//     // CATCH AND RETURN UNEXPECTED ERRORS
-//     console.log(error);
-//     res.status(500).json({
-//       message: error._message,
-//     });
-//   }
-// };

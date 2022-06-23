@@ -2,15 +2,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { User } from "../models/user.js";
+import { Location } from "../models/location.js";
 
 import sendGridMail from "@sendgrid/mail";
 
-// ON DEPLOYMENT, SWITCH TO "process.env.SENDGRID_API_KEY"
 sendGridMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // CREATE NEW USER
 export const signup = async (req, res, next) => {
-  console.log(req.body);
 
   try {
     const hash = await bcrypt.hash(req.body.password, 10);
@@ -33,8 +32,7 @@ export const signup = async (req, res, next) => {
     // CUSTOM "UNIQUE EMAIL" VALIDATOR
     try {
       const checkEmailUnique = await User.findOne({ email: req.body.email });
-      console.log("||| checking email unique |||");
-      console.log(checkEmailUnique);
+
       if (checkEmailUnique && checkEmailUnique.email) {
         res.status(422).json({
           message:
@@ -42,7 +40,6 @@ export const signup = async (req, res, next) => {
         });
       }
     } catch (error) {
-      console.log(error);
       if (!res.headersSent) {
         res.status(500).json({
           message: "Signup failed! Please try again.",
@@ -82,7 +79,6 @@ export const signup = async (req, res, next) => {
       result: newUser,
     });
   } catch (error) {
-    console.log(error);
     if (!res.headersSent) {
       res.status(500).json({
         message: "Signup failed! Please try again.",
@@ -128,7 +124,6 @@ export const login = async (req, res, next) => {
       userId: user._id,
     });
   } catch (error) {
-    console.log(error);
     if (!res.headersSent) {
       return res.status(500).json({
         message: error,
@@ -139,24 +134,16 @@ export const login = async (req, res, next) => {
 // USER LOGIN /// END
 
 export const updateUser = async (req, res, next) => {
-  console.log(req.file);
-  console.log("||| ^^^ req.file ^^^ |||");
-  console.log(req.body);
-  console.log("||| ^^^ req.body ^^^ |||");
   let imagePath;
   if (req.file) {
     const url = req.protocol + "://" + req.get("host");
     imagePath = url + "/images/users/" + req.file.filename;
-    console.log(imagePath);
   }
 
   try {
     const updatedUser = await User.findByIdAndUpdate(
       req.body.userId,
       {
-        // email: req.body.email,
-        // "userProfile.role": req.body.role,
-        // "userProfile.department": req.body.department,
         "userProfile.firstName": req.body.firstName,
         "userProfile.lastName": req.body.lastName,
         "userProfile.phoneNumber": req.body.phoneNumber,
@@ -165,8 +152,6 @@ export const updateUser = async (req, res, next) => {
       },
       { new: true }
     );
-    console.log(updatedUser);
-    console.log("||| ^^^ updatedUser ^^^ |||");
 
     if (updatedUser) {
       res.status(200).json({ updatedUser: updatedUser });
@@ -176,7 +161,6 @@ export const updateUser = async (req, res, next) => {
         .json({ message: "An unknown server error has occurred." });
     }
   } catch (error) {
-    console.log(error);
     if (!res.headersSent) {
       return res.status(500).json({
         message: error,
@@ -197,8 +181,6 @@ export const getUserLocations = async (req, res, next) => {
         staffMember: req.params.userId,
       });
     }
-    console.log(userLocations);
-    console.log("||| ^^^ userLocations here ^^^");
 
     if (userLocations) {
       res.status(200).json({ fetchedLocations: userLocations });
@@ -209,8 +191,6 @@ export const getUserLocations = async (req, res, next) => {
         .json({ message: "No authorized locations were found for this user." });
     }
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
-    console.log(error);
     res.status(500).json({
       message: error._message,
     });
