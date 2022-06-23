@@ -22,7 +22,7 @@ const productSchema = mongoose.Schema({
   productPhoto: {
     type: String,
     required: true,
-    default: "http://localhost:3000/images/products/product_photo_default.png",
+    default: "http://inventory.us-east-1.elasticbeanstalk.com/images/products/product_photo_default.png",
   },
 });
 

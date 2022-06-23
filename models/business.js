@@ -10,7 +10,7 @@ const businessSchema = mongoose.Schema({
   businessPhoto: {
     type: String,
     required: true,
-    default: "http://localhost:3000/images/business/business_photo_default.png",
+    default: "http://inventory.us-east-1.elasticbeanstalk.com/images/business/business_photo_default.png",
   },
   locations: [
     {
