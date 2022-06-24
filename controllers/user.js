@@ -118,12 +118,12 @@ export const login = async (req, res, next) => {
         userRole: user.userProfile.role,
       },
       process.env.JWT_KEY,
-      { expiresIn: "4h" }
+      { expiresIn: "1h" }
     );
 
     res.status(200).json({
       token: userToken,
-      expiresIn: 14400,
+      expiresIn: 3600,
       user: user,
       userId: user._id,
     });

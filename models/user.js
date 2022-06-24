@@ -13,7 +13,7 @@ const userSchema = mongoose.Schema({
     userPhoto: {
       type: String,
       required: true,
-      default: "http://localhost:3000/images/users/user_photo_default.png",
+      default: "http://inventory.us-east-1.elasticbeanstalk.com/images/users/user_photo_default.png",
     },
   },
 });
