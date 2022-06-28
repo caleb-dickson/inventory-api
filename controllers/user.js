@@ -85,7 +85,6 @@ export const signup = async (req, res, next) => {
     console.log(error);
     if (!res.headersSent) {
       res.status(500).json({
-        message: "Signup failed! Please try again.",
         message: error,
       });
     }

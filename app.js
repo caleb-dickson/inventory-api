@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import userRoutes from "./routes/user.js";
 import businessRoutes from "./routes/business.js";
 import locationRoutes from "./routes/location.js";
+import sampleRoute from "./routes/welcome.js";
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/api/", sampleRoute);
 app.use("/api/user", userRoutes);
 app.use("/api/business", businessRoutes);
 app.use("/api/location", locationRoutes);
