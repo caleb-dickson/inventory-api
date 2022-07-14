@@ -101,8 +101,8 @@ export const getOwnersBusiness = async (req, res, next) => {
     });
 
     if (foundBusiness && foundBusiness._id) {
-      console.log("||| found and populated? |||");
       console.log(foundBusiness.locations);
+      console.log("||| ^^^ found and populated locations ^^^ |||");
       res.status(200).json({
         message: "Owner's business found.",
         business: foundBusiness,
@@ -152,8 +152,8 @@ export const updateBusiness = async (req, res, next) => {
       model: "Location",
     });
 
-    console.log("||| updated, populated? business |||");
     console.log(business);
+    console.log("||| ^^^ found and populated business ^^^ |||");
 
     res.status(200).json({
       message: "Business name updated successfully",

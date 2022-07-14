@@ -15,17 +15,10 @@ router.get(
 );
 
 // PRODUCTS
-// Create a new product for business
+// Create new product for location
 router.post("/new-product", checkAuth, LocationController.createProduct);
-// Update product businesswide (parentOrg is the business)
-// ================================ //
-
-// Add a product to the Location's product list (pull data from the
-// business product, create new copy with the location as the parentOrg)
-// ================================ //
-
-// Fetch all products associated with parentOrg
-// ================================ //
+// Update product for location
+router.put("/update-product", checkAuth, LocationController.updateProduct);
 
 // INVENTORY
 // Start new inventory

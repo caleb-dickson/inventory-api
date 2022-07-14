@@ -3,9 +3,6 @@ import { Inventory } from "../models/inventory.js";
 import { Product } from "../models/product.js";
 
 export const fetchUserLocations = async (req, res, next) => {
-  // IDEA FOR FUTURE DEVELOPMENT??: LOOK FOR USER IN BOTH LISTS
-  // IF USER IS FOUND IN A MANAGER LIST AND THEIR ROLE ISN'T
-  // AS MANAGER, UPDATE USER ROLE TO MANAGER: "2"
   try {
     let userLocations;
 
@@ -92,6 +89,8 @@ export const fetchUserLocations = async (req, res, next) => {
 };
 
 export const createProduct = async (req, res, next) => {
+  console.log(req.body.product);
+  console.log("||| ^^^ req.body.product ^^^ |||");
   try {
     const product = new Product({
       parentOrg: req.body.product.parentOrg,
@@ -203,9 +202,71 @@ export const createInventory = async (req, res, next) => {
   }
 };
 
+export const updateProduct = async (req, res, next) => {
+  console.log(req.body);
+  console.log("||| ^^^ req.body Updated Product Data ^^^ |||");
+
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.body.product._id,
+      {
+        isActive: req.body.product.isActive,
+        department: req.body.product.department,
+        category: req.body.product.category,
+        name: req.body.product.name,
+        unitSize: req.body.product.unitSize,
+        unitMeasure: req.body.product.unitMeasure,
+        unitsPerPack: req.body.product.unitsPerPack,
+        packsPerCase: req.body.product.packsPerCase,
+        casePrice: req.body.product.casePrice,
+        par: req.body.product.par
+      },
+      { new: true }
+    );
+
+    const updatedLocation = await Location.findById(req.body.product.parentOrg)
+      .populate({
+        path: "productList.product",
+        model: "Product",
+      })
+      .populate({
+        path: "inventoryData.inventory",
+        model: "Inventory",
+      })
+      .populate({
+        path: "managers.manager",
+        model: "User",
+      })
+      .populate({
+        path: "staff.staffMember",
+        model: "User",
+      })
+      .populate({
+        path: "parentBusiness",
+        model: "Business",
+      });
+
+    if (updatedProduct) {
+      res.status(200).json({
+        updatedProduct: updatedProduct,
+        updatedLocation: updatedLocation
+      })
+    } else {
+      res.status(404).json({ message: "Product not found." })
+    }
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: error._message,
+    });
+  }
+
+}
+
 export const updateInventory = async (req, res, next) => {
   console.log(req.body);
-  console.log("||| ^^^ req.body ^^^ |||");
+  console.log("||| ^^^ req.body Updated Inventory Data ^^^ |||");
 
   try {
     const updatedInventory = await Inventory.findByIdAndUpdate(
@@ -214,11 +275,12 @@ export const updateInventory = async (req, res, next) => {
         dateStart: req.body.inventory.dateStart,
         dateEnd: req.body.inventory.dateEnd,
         isFinal: req.body.inventory.isFinal,
-        inventory: req.body.inventory.dInventory,
+        inventory: req.body.inventory.inventory,
+        value: req.body.inventory.value
       },
       { new: true }
     ).populate({
-      path: "inventory",
+      path: "inventory.product",
       model: "Product",
     });
 
