@@ -3,6 +3,7 @@ import express from "express";
 const router = express.Router();
 
 router.get("/", (req, res, next) => {
+
   try {
     res.status(200).json({
       welcomeMessage:
@@ -18,6 +19,7 @@ router.get("/", (req, res, next) => {
       });
     }
   }
+  
 });
 
 export default router;
