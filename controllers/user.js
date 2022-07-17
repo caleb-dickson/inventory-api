@@ -1,9 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 import { User } from "../models/user.js";
 
 import sendGridMail from "@sendgrid/mail";
+import { async } from "rxjs";
 
 // ON DEPLOYMENT, SWITCH TO "process.env.SENDGRID_API_KEY"
 sendGridMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -67,7 +69,6 @@ export const signup = async (req, res, next) => {
         color: #363636;
       }
     </style>
-    <script defer></script>
     <main>
       <body>
         <h1 class="title">You have successfully signed up for "Inventory App"</h1>
@@ -136,6 +137,154 @@ export const login = async (req, res, next) => {
   }
 };
 // USER LOGIN /// END
+
+export const resetPassInit = async (req, res, next) => {
+  crypto.randomBytes(32, async (err, buffer) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({
+        message: "An error has occurred while resetting your password. Please refresht the page and try again"
+      });
+    }
+
+    try {
+      const token = buffer.toString('hex');
+      const user = await User.findOne({ email: req.body.email });
+
+      console.log(user);
+
+      if (!user) {
+        res.status(404).json({
+          message: "No user found with email " + req.body.email
+        })
+      } else {
+        const updatedUser = await User.findByIdAndUpdate(
+          user._id,
+          {
+            resetToken: token,
+            resetTokenExpiration: Date.now() + 3600000
+          });
+        console.log(updatedUser);
+
+        if (updatedUser) {
+
+          await sendGridMail.send({
+            to: req.body.email,
+            from: "info@calebdickson.com",
+            subject: "Reset Password",
+            html: `<style>
+                main {
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+                }
+                .title {
+                  color: #363636;
+                }
+              </style>
+              <main>
+                <body>
+                  <h1 class="title">Here is the link to reset your password</h1>
+                  <p>Click <a href="http://localhost:4200/reset-password/${token}">here</a> to reset your password.</p>
+                  <p>This link will expire in 1 hour.</p>
+                </body>
+              </main>`,
+          });
+
+          res.status(200).json({
+            message: 'If this account exists, a password reset link will be sent to ' + req.body.email + '. Check your email.'
+          });
+
+        } else {
+          res.status(500).json({ message: 'Server encountered an error while preparing to reset the password. Please refresh the page and try again.' })
+        }
+      }
+
+
+    } catch (error) {
+      console.log(error);
+      if (!res.headersSent) {
+        return res.status(500).json({
+          message: error,
+        });
+      }
+    }
+
+  });
+
+}
+
+export const checkPassResetToken = async (req, res, next) => {
+  console.log(req.params.token);
+
+  try {
+
+    const foundUser = await User.findOne(
+      {
+        resetToken: req.params.token,
+        resetTokenExpiration: {
+          $gt: Date.now()
+        }
+      });
+
+    if (foundUser) {
+      res.status(200).json({ userId: foundUser._id })
+    } else {
+      res.status(401).json({ message: 'This password reset link has expired. Please try again or proceed to log in.' })
+    }
+
+  } catch (error) {
+    console.log(error);
+    if (!res.headersSent) {
+      return res.status(500).json({
+        message: error,
+      });
+    }
+  }
+}
+
+export const resetPass = async (req, res, next) => {
+
+  try {
+
+    const resettingUser = await User.findOne(
+      {
+        resetToken: req.body.token,
+        resetTokenExpiration: { $gt: Date.now() },
+        _id: req.body.userId
+      });
+
+    if (resettingUser) {
+      const hashedPass = await bcrypt.hash(req.body.newPass, 10);
+      const userWithNewPass = await User.findByIdAndUpdate(
+        resettingUser._id,
+        {
+          password: hashedPass,
+          resetToken: null,
+          resetTokenExpiration: null
+        });
+      res.status(200).json(
+        {
+          message: 'Your password has been reset. You may now log in with your new password.'
+        });
+    } else {
+      res.status(500).json(
+        {
+          message: 'An error has occured while resetting your password. Please refresh the page and try again.'
+        }
+      )
+    }
+
+
+  } catch (error) {
+    console.log(error);
+    if (!res.headersSent) {
+      return res.status(500).json({
+        message: error,
+      });
+    }
+  }
+
+}
 
 export const updateUser = async (req, res, next) => {
   console.log(req.file);

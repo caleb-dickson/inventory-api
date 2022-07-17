@@ -20,4 +20,12 @@ router.get(
 
 router.put("/update-user", checkAuth, saveUserPhoto, UserController.updateUser);
 
+// PASSWORD RESET
+// Find by email and send the reset link
+router.post("/reset-pass-init", UserController.resetPassInit);
+// After link landing, verify the link is still valid
+router.get("/reset-pass-init/:token", UserController.checkPassResetToken);
+// Update the User's password
+router.put("/reset-pass", UserController.resetPass);
+
 export default router;

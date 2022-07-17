@@ -16,6 +16,8 @@ const userSchema = mongoose.Schema({
       default: "http://inventory.us-east-1.elasticbeanstalk.com/images/users/user_photo_default.png",
     },
   },
+  resetToken: { type: String, required: false },
+  resetTokenExpiration: { type: Date, required: false }
 });
 
 userSchema.methods.ownerAddBusiness = function (newBusiness) {
