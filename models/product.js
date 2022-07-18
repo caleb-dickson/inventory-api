@@ -4,7 +4,7 @@ const productSchema = mongoose.Schema({
   parentOrg: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    // ref: "Business", REMOVED, MAY CAUSE BUGS?
+    ref: "Location"
   },
   isActive: { type: Boolean, required: true, default: true },
   department: { type: String, required: true },

@@ -3,9 +3,12 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
 import { User } from "../models/user.js";
+import { Location } from "../models/location.js";
+import { Business } from "../models/business.js";
+import { Product } from "../models/product.js";
+import { Inventory } from "../models/inventory.js";
 
 import sendGridMail from "@sendgrid/mail";
-import { async } from "rxjs";
 
 // ON DEPLOYMENT, SWITCH TO "process.env.SENDGRID_API_KEY"
 sendGridMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -138,12 +141,111 @@ export const login = async (req, res, next) => {
 };
 // USER LOGIN /// END
 
+export const deleteUser = async (req, res, next) => {
+  try {
+
+    const user = await User.findById(req.params.userId);
+
+    // NON-ADMIN MANAGERS
+    // and
+    // NON-OWNER ADMINS
+    if (
+      (user && +user.userProfile.role === 2) ||
+      (
+        user &&
+        user.userProfile.department === 'admin' &&
+        +user.userProfile.role !== 3
+      )
+    ) {
+      const userLocations = await Location.find({ "managers.manager": req.params.userId });
+
+      userLocations.forEach(location => {
+        location.removeManager(user._id);
+      });
+
+      const deletedRes = await User.deleteOne({ _id: req.params.userId });
+
+      if (+deletedRes.deletedCount === 1) {
+        res.status(200).json({ message: 'Account removed.' });
+      } else {
+        res.status(500).json({ message: 'Unknown server error.' });
+      }
+
+      // JUNIOR STAFFMEMBERS
+    } else if (user && (user.userProfile.department !== 'admin' || +user.userProfile.role === 1)) {
+      const userLocations = await Location.find({ "staff.staffMember": req.params.userId });
+
+      userLocations.forEach(location => {
+        location.removeStaffmember(user._id);
+      });
+
+      const deletedRes = await User.deleteOne({ _id: req.params.userId });
+
+      if (+deletedRes.deletedCount === 1) {
+        res.status(200).json({ message: 'Account removed.' });
+      } else {
+        res.status(500).json({ message: 'Unknown server error.' });
+      }
+
+      // OWNERS
+    } else if (user && +user.userProfile.role === 3) {
+      const ownersBusiness = await Business.findOne({
+        ownerId: req.params.userId
+      })
+        .populate({
+          path: "locations.location",
+          model: "Location"
+        });
+      console.log(ownersBusiness);
+      console.log('||| ^^^ found ownersBusiness ^^^ |||');
+
+
+      let locationsDeleted;
+      if (ownersBusiness.locations.length > 0) {
+        for (const location of ownersBusiness.locations) {
+          await Product.deleteMany({ parentOrg: location.location });
+          await Inventory.deleteMany({ parentLocation: location.location });
+        }
+        locationsDeleted = await Location.deleteMany({ parentBusiness: ownersBusiness._id });
+      }
+
+
+      const businessDeleted = await Business.deleteOne({ _id: ownersBusiness._id });
+
+
+      const userDeleted = await User.deleteOne({ _id: req.params.userId });
+
+
+      if (
+        +businessDeleted.deletedCount === 1 &&
+        +userDeleted.deletedCount === 1
+      ) {
+        if (+userDeleted.deletedCount === 1) {
+          res.status(200).json({ message: 'User and all of Business deleted.' });
+        } else {
+          res.status(500).json({ message: 'Business deleted. A server error occurred while deleting this User.' })
+        }
+      } else {
+        res.status(500).json({ message: 'A server error occurred while deleting this Business.' })
+      }
+
+    }
+
+  } catch (error) {
+    console.log(error);
+    if (!res.headersSent) {
+      return res.status(500).json({
+        message: error,
+      });
+    }
+  }
+}
+
 export const resetPassInit = async (req, res, next) => {
   crypto.randomBytes(32, async (err, buffer) => {
     if (err) {
-      console.log(err);
       res.status(500).json({
-        message: "An error has occurred while resetting your password. Please refresht the page and try again"
+        message: 'Server encountered an error while preparing to reset the password. Please refresh the page and try again.'
       });
     }
 
@@ -151,12 +253,11 @@ export const resetPassInit = async (req, res, next) => {
       const token = buffer.toString('hex');
       const user = await User.findOne({ email: req.body.email });
 
-      console.log(user);
 
       if (!user) {
-        res.status(404).json({
-          message: "No user found with email " + req.body.email
-        })
+        res.status(200).json({
+          message: 'Done! If this account exists, a password reset link will be sent to ' + req.body.email + '. Check your email.'
+        });
       } else {
         const updatedUser = await User.findByIdAndUpdate(
           user._id,
@@ -164,14 +265,13 @@ export const resetPassInit = async (req, res, next) => {
             resetToken: token,
             resetTokenExpiration: Date.now() + 3600000
           });
-        console.log(updatedUser);
 
         if (updatedUser) {
 
           await sendGridMail.send({
             to: req.body.email,
             from: "info@calebdickson.com",
-            subject: "Reset Password",
+            subject: "{Inventory} Password Reset",
             html: `<style>
                 main {
                   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
@@ -191,7 +291,7 @@ export const resetPassInit = async (req, res, next) => {
           });
 
           res.status(200).json({
-            message: 'If this account exists, a password reset link will be sent to ' + req.body.email + '. Check your email.'
+            message: 'Done! If this account exists, a password reset link will be sent to ' + req.body.email + '. Check your email.'
           });
 
         } else {

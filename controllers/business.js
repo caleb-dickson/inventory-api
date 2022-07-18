@@ -259,7 +259,7 @@ export const addUsersToLocation = async (req, res, next) => {
     console.log("||| ^^^ req.body ^^^ |||");
     const locationForAdd = await Location.findById(req.body.location);
 
-    // FOR managers
+    // IF MANAGER
     if (req.body.role === "manager") {
       const updatedLocation = await locationForAdd.addManagers(req.body.emails);
       console.log(updatedLocation);
@@ -267,7 +267,7 @@ export const addUsersToLocation = async (req, res, next) => {
       if (updatedLocation === "Not found.") {
         res.status(404).json({
           message:
-            "Couldn't find a manager. Are all users signed up as Manager?",
+            "Couldn't find a manager. Are all of these users signed up as Manager?",
         });
       } else {
         res.status(200).json({
@@ -276,7 +276,7 @@ export const addUsersToLocation = async (req, res, next) => {
         });
       }
 
-      // FOR staff
+      // IF STAFF
     } else if (req.body.role === "staff") {
       const updatedLocation = await locationForAdd.addStaff(req.body.emails);
       console.log("||| ^^^ updated location here ^^^ |||");
@@ -294,7 +294,6 @@ export const addUsersToLocation = async (req, res, next) => {
       }
     }
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
     console.log(error);
     if (!res.headersSent) {
       res.status(500).json({
@@ -338,34 +337,9 @@ export const getBusinessLocations = async (req, res, next) => {
       res.status(404).json({ message: "No locations were found" });
     }
   } catch (error) {
-    // CATCH AND RETURN UNEXPECTED ERRORS
     console.log(error);
     res.status(500).json({
       message: error._message,
     });
   }
 };
-
-// exports.getProducts = async (req, res, next) => {
-//   try {
-//     const businessId = req.params.businessId;
-//   } catch (error) {
-//     // CATCH AND RETURN UNEXPECTED ERRORS
-//     console.log(error);
-//     res.status(500).json({
-//       message: error._message,
-//     });
-//   }
-// };
-
-// exports.getInventories = async (req, res, next) => {
-//   try {
-//     const locationId = req.params.locationId;
-//   } catch (error) {
-//     // CATCH AND RETURN UNEXPECTED ERRORS
-//     console.log(error);
-//     res.status(500).json({
-//       message: error._message,
-//     });
-//   }
-// };

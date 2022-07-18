@@ -13,19 +13,22 @@ router.post("/login", UserController.login);
 
 // Fetch all locations where user is authorized
 router.get(
-  "/fetch-user-locations/:userId/:userRole",
+  "/user-locations/:userId/:userRole",
   checkAuth,
   UserController.getUserLocations
 );
 
-router.put("/update-user", checkAuth, saveUserPhoto, UserController.updateUser);
+router.put("/user", checkAuth, saveUserPhoto, UserController.updateUser);
 
 // PASSWORD RESET
 // Find by email and send the reset link
-router.post("/reset-pass-init", UserController.resetPassInit);
+router.post("/reset", UserController.resetPassInit);
 // After link landing, verify the link is still valid
-router.get("/reset-pass-init/:token", UserController.checkPassResetToken);
+router.get("/reset/:token", UserController.checkPassResetToken);
 // Update the User's password
-router.put("/reset-pass", UserController.resetPass);
+router.put("/reset", UserController.resetPass);
+
+// DELETE USER
+router.delete("/user/:userId", checkAuth, UserController.deleteUser);
 
 export default router;

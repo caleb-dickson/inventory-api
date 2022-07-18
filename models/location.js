@@ -75,6 +75,36 @@ locationSchema.methods.addNewInventory = async function (newInventory) {
   return this.save();
 };
 
+locationSchema.methods.removeManager = async function (userId) {
+  let arr = [];
+
+  for (const manager of this.managers) {
+    if (manager.manager.toString() != userId) {
+      arr.push(manager);
+    }
+  }
+
+  this.managers = [...arr];
+  console.log(this.managers)
+
+  return this.save();
+}
+
+locationSchema.methods.removeStaffmember = async function (userId) {
+  let arr = [];
+
+  for (const staff of this.staff) {
+    if (staff.staffMember.toString() != userId) {
+      arr.push(staff);
+    }
+  }
+
+  this.staff = [...arr];
+  console.log(this.staff);
+
+  return this.save();
+}
+
 // TO ADD A LIST OF AUTHORIZED MANAGERS (User Refs) TO A LOCATION BY EMAIL
 locationSchema.methods.addManagers = async function (managerEmails) {
   const currentManagers = this.managers;
