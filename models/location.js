@@ -176,6 +176,13 @@ locationSchema.methods.addProductToList = async function (newProduct) {
   return this.save();
 };
 
+locationSchema.methods.removeProductFromList = async function (product) {
+  this.productList = this.productList.filter((prodRef) =>
+    prodRef.product.toString() !== product
+  )
+  return this.save();
+};
+
 locationSchema.methods.addInventory = async function (newInventory) {
   this.inventoryData.push({ inventory: newInventory });
   return this.save();

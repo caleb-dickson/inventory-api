@@ -8,6 +8,7 @@ export const checkOwner = (req, res, next) => {
       email: decodedToken.email,
       userId: decodedToken.userId,
       userRole: decodedToken.userRole,
+      userDept: decodedToken.userDept
     };
     console.log(req.userData);
     console.log("||| checkAuth here ^^^ |||");

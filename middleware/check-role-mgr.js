@@ -8,10 +8,11 @@ export const checkMgr = (req, res, next) => {
       email: decodedToken.email,
       userId: decodedToken.userId,
       userRole: decodedToken.userRole,
+      userDept: decodedToken.userDept
     };
     console.log(req.userData);
     console.log("||| checkAuth here ^^^ |||");
-    if (+req.userData.userRole > 1) {
+    if (+req.userData.userRole > 1 || req.userData.userDept === 'admin') {
       next();
     } else {
       res.status(403).json({

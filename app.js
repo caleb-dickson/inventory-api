@@ -3,10 +3,11 @@ import express from "express";
 import BodyParser from "body-parser";
 import mongoose from "mongoose";
 
+import welcomeRoute from "./routes/welcome.js";
 import userRoutes from "./routes/user.js";
 import businessRoutes from "./routes/business.js";
 import locationRoutes from "./routes/location.js";
-import sampleRoute from "./routes/welcome.js";
+import productRoutes from "./routes/product.js";
 
 const app = express();
 
@@ -45,9 +46,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/", sampleRoute);
+app.use("/api/", welcomeRoute);
 app.use("/api/user", userRoutes);
 app.use("/api/business", businessRoutes);
 app.use("/api/location", locationRoutes);
+app.use("/api/product", productRoutes);
 
 export default app;

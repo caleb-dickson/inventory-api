@@ -1,6 +1,5 @@
 import express from 'express';
 
-import { checkAuth } from '../middleware/check-auth.js';
 import { checkOwner } from '../middleware/check-role-owner.js';
 import { checkMgr } from '../middleware/check-role-mgr.js';
 

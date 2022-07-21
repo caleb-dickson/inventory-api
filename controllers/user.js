@@ -119,6 +119,7 @@ export const login = async (req, res, next) => {
         email: user.email,
         userId: user._id,
         userRole: user.userProfile.role,
+        userDept: user.userProfile.department
       },
       process.env.JWT_KEY,
       { expiresIn: "1h" }
